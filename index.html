@@ -1,2 +1,236 @@
+ <!DOCTYPE html>
+<html lang="en">
 
-<h2>  hello kalyan </h2>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mallikarjuna | shopping </title>
+
+    <link rel="stylesheet" href="../../../node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../../node_modules/bootstrap/dist/css/bootstrap.css">
+
+    <script>
+
+        var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thurday", "friday", "saturday"];
+        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        var cart=[]
+
+        // data manipulation
+        function loadDate() {
+            var today = new Date();
+            var day = days[today.getDay()]
+            var date = today.getDate();
+            var month = months[today.getMonth()]
+            var year = today.getFullYear()
+
+            document.getElementById("ldate").innerHTML = `
+               <span class="bi bi-calendar-fill"></span>
+                ${day} , ${date} ${month} - ${year}
+            `
+        }
+
+        function loadWishMsg() {
+            var hr = new Date().getHours()
+            if (hr < 12) {
+                document.getElementById("wishmsg").innerHTML = `
+                <span class="bi bi-cloud-sun"></span> Good Morning
+                `
+
+            }
+            else if (hr <= 16) {
+                document.getElementById("wishmsg").innerHTML = `
+                <span class="bi bi-sun-fill"></span> Good  Afternoon
+                `
+            } else {
+                document.getElementById("wishmsg").innerHTML = `
+                <span class="bi bi-sunset-fill"></span> Good  Evening
+                `
+            }
+        }
+
+        function loadTime() {
+            var today = new Date();
+            var hr = today.getHours();
+            var min = today.getMinutes();
+            var sec = today.getSeconds();
+
+            document.getElementById("ltime").innerHTML = `
+                <span class="bi bi-clock-fill"> </span> 
+                ${hr} : ${min} : ${sec}
+            `
+        }
+
+        // left panel creation logic
+        function loadCaterogies() {
+            fetch("https://fakestoreapi.com/products/categories")
+                .then(function (res) {
+                    return res.json();
+                })
+                .then(function (products) {
+                    products.unshift("All");
+                    console.log(products)
+                    for (var product of products) {
+                        var btn = document.createElement("button");
+                        btn.className="btn btn-warning w-100 p-2 m-2"
+                        btn.innerHTML = product
+                        document.getElementById("left-panel").appendChild(btn)
+                    }
+
+                })
+        }
+
+
+        // products loading 
+        function loadProducts(){
+            fetch("https://fakestoreapi.com/products")
+            .then(function (res){
+                return res.json()
+            })
+            .then(function (items){
+
+                for (var item of items){
+                    var cart=document.createElement("div");
+                    cart.className="cart m-2 p-2"
+                    cart.style.width="18rem"     
+                    cart.innerHTML=`
+                    <img class="card-img-bottom img-thumbnail " src="${item.image}" alt="${item.description}" style="height:10rem;">
+                        <div class="cart-body"  >
+                            <ol class="text-center list-unstyled list-group">
+                                <li class="list-group-item"> ${item.title}</li> 
+                                <li class="list-group-item"> <span class="bi bi-star-fill"></span> <span
+                                        class="bi bi-star-fill"></span> <span class="bi bi-star-fill"></span> <span
+                                        class="bi bi-star-fill"></span> <span class="bi bi-star-half"></span>
+                                    ${item.rating.rate} count : ${item.rating.count} </li>
+                                <li class="list-group-item fs-6"> &#8377; ${item.price} /-
+                                    <sub><strike>&#8377;${item.price * 2}</strike> (50 % off)</sub></li>
+                                <li class="list-group-item"> <button class="btn btn-primary w-100">buy now</button></li>
+                                <li class="list-group-item"> <button onclick="addToCart(${item.id})" class="btn btn-warning w-100"> Add to cart</button>
+                                </li>
+                            </ol>
+                    `;
+
+                    document.getElementById("items").appendChild(cart);
+                }
+            })
+        }
+
+
+        // adding items to cart
+        function addToCart(val){
+            fetch(`https://fakestoreapi.com/products/${val}`)
+            .then(function (response){
+                return response.json()
+            })
+            .then(function (product){
+                cart.push(product)
+                document.getElementById("itemcount").innerHTML=cart.length
+            })
+
+            
+        }
+
+
+        // page load
+        function loadbody() {
+            loadDate()
+            setInterval(loadTime, 1000);
+            loadWishMsg()
+
+            loadCaterogies()
+            loadProducts()
+        }
+
+    </script>
+
+</head>
+
+<body class="container-fluid" onload="loadbody()">
+
+    <!-- nav bar -->
+
+    <nav class="nav btn-toolbar justify-content-between bg-danger text-white align-items-center fs-1 p-3 mt-3">
+
+        <div class="btn-group me-2">
+            <h3> Mallikarjuna </h3>
+        </div>
+
+        <div class="btn-group me-2">
+            <h4 id="wishmsg" class="fs-2"></h4>
+        </div>
+
+        <div class="btn-group me-2">
+            <h4 class="calen me-2" id="ldate"></h4>
+            <h4 id="ltime" class="me-2"></h4>
+            <button data-bs-toggle="modal" data-bs-target="#dcart" id="cartitems" class="position-relative  btn btn-warning me-2 rounded-pill ms-4"><span
+                    class="bi bi-cart-dash"></span> Your cart<span id="itemcount"
+                    class="position-absolute top-25 start-100 translate-middle badge  rounded-circle bg-danger border-opacity-100" style="border:1px solid white ;"></span></button>
+        </div>
+    </nav>
+
+
+    <!--  body developed -->
+    <section style="height: 40rem;   ">
+
+        <div class="row">
+            <div class="col-2 m-auto mt-lg-5" id="left-panel">
+
+            </div>
+    
+            <div class="col-10   ">
+                <div class="row overflow-auto d-flex flex-wrap justify-content-center align-items-center" style="height: 39rem;" id="items">
+    
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- fotter design-->
+    <footer class="w-100">
+            <h4 class="text-white bg-danger text-center p-2 m-2"> Website crated by Mallikarjuna </h4>
+    </footer>
+
+
+
+
+    <!-- Modal Creation of cart-->
+    <div class="modal" id="dcart">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="text-center text-danger "> Your Cart Items </h3>
+                    <button class="btn btn-close btn-danger" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-hover">
+                        <thead >
+                            <tr>
+                                <td>Name</td>
+                                <td>preview</td>
+                                <td>price</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                      <button data-bs-dismiss="modal" class="btn btn-primary">proceed to pay</button>
+                      <button data-bs-dismiss="modal" class="btn btn-danger">cancel</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="../../../node_modules/jquery/dist/jquery.js"></script>
+    <script src="../../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+</body>
+
+</html>
